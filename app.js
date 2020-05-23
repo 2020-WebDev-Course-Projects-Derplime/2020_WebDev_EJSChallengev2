@@ -38,10 +38,9 @@ const postSchema = {
 
 const Post = mongoose.model("Post", postSchema);
 
-let posts = [];
-
 app.get("/", function(req, res){
 
+  // Find all posts and add them to home page
   Post.find({}, (err, foundPosts) => {
     if (err) {
       console.error(err);
@@ -68,6 +67,7 @@ app.get("/compose", function(req, res){
 
 app.post("/compose", function(req, res){
 
+  // Body deconstruction
   const { postTitle, postBody } = req.body;
 
   const newPost = new Post({
@@ -84,20 +84,22 @@ app.post("/compose", function(req, res){
   });
 });
 
-app.get("/posts/:postName", function(req, res){
-  const requestedTitle = _.lowerCase(req.params.postName);
+app.get("/posts/:postId", function(req, res){
+  
+  // Param deconstruction
+  const { postId } = req.params;
 
-  posts.forEach(function(post){
-    const storedTitle = _.lowerCase(post.title);
-
-    if (storedTitle === requestedTitle) {
+  // Search for post in db by id
+  Post.findById(postId, (err, post) => {
+    if (err) {
+      console.log(err);
+    } else {
       res.render("post", {
         title: post.title,
         content: post.content
       });
     }
   });
-
 });
 
 app.listen(3000, function() {
